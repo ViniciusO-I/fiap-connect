@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments :: head('Home')}"></head>
+<body class="bg-light">
+
+<nav th:replace="~{fragments :: navbar}"></nav>
+
+<div class="container py-5">
+    <div th:replace="~{fragments :: alerts}"></div>
+
+    <!-- Hero -->
+    <div class="text-center mb-5">
+        <h1 class="display-5 fw-bold text-danger">
+            <i class="bi bi-diagram-3-fill"></i> Bem-vindo ao FIAP Connect
+        </h1>
+        <p class="lead text-muted">
+            Conecte-se com estudantes que têm habilidades complementares às suas
+            e forme grupos de alto desempenho para seus projetos acadêmicos.
+        </p>
+        <span class="badge bg-secondary fs-6" th:text="'Olá, ' + ${username} + '!'"></span>
+    </div>
+
+    <!-- Cards de acesso rápido -->
+    <div class="row g-4 justify-content-center">
+
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body text-center py-4">
+                    <i class="bi bi-lightning-fill text-warning fs-1 mb-3 d-block"></i>
+                    <h5 class="card-title">Skills</h5>
+                    <p class="card-text text-muted">Explore as habilidades técnicas cadastradas na plataforma.</p>
+                    <a th:href="@{/skills}" class="btn btn-outline-warning">Ver Skills</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body text-center py-4">
+                    <i class="bi bi-people-fill text-primary fs-1 mb-3 d-block"></i>
+                    <h5 class="card-title">Grupos</h5>
+                    <p class="card-text text-muted">Entre em grupos de projeto ou crie o seu próprio time.</p>
+                    <a th:href="@{/groups}" class="btn btn-outline-primary">Ver Grupos</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body text-center py-4">
+                    <i class="bi bi-person-badge-fill text-success fs-1 mb-3 d-block"></i>
+                    <h5 class="card-title">Meu Perfil</h5>
+                    <p class="card-text text-muted">Gerencie suas skills e veja seus dados cadastrados.</p>
+                    <a th:href="@{/users/profile}" class="btn btn-outline-success">Meu Perfil</a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div th:replace="~{fragments :: scripts}"></div>
+</body>
+</html>

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments :: head('Grupos')}"></head>
+<body class="bg-light">
+
+<nav th:replace="~{fragments :: navbar}"></nav>
+
+<div class="container py-4">
+    <div th:replace="~{fragments :: alerts}"></div>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-people-fill text-primary"></i> Grupos de Projeto</h2>
+        <a th:href="@{/groups/new}" class="btn btn-danger">
+            <i class="bi bi-plus-circle"></i> Novo Grupo
+        </a>
+    </div>
+
+    <div th:if="${#lists.isEmpty(groups)}" class="alert alert-info">
+        Nenhum grupo cadastrado ainda.
+    </div>
+
+    <div class="row g-3" th:if="${not #lists.isEmpty(groups)}">
+        <div class="col-md-6 col-lg-4" th:each="group : ${groups}">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <span class="fw-semibold text-truncate" th:text="${group.description}">Grupo</span>
+                    <span class="badge"
+                          th:classappend="${group.availableSeats > 0} ? 'bg-success' : 'bg-secondary'"
+                          th:text="${group.availableSeats} + ' vagas'"></span>
+                </div>
+                <div class="card-body">
+                    <p class="mb-2 text-muted small">
+                        <i class="bi bi-person-fill"></i> Dono:
+                        <strong th:text="${group.ownerName}">-</strong>
+                    </p>
+                    <p class="mb-2 text-muted small">
+                        <i class="bi bi-people"></i>
+                        <span th:text="${group.users.size()} + ' / ' + ${group.maxMembers} + ' membros'"></span>
+                    </p>
+
+                    <div class="mb-2" th:if="${not #sets.isEmpty(group.skills)}">
+                        <span class="text-muted small">Skills obrigatórias:</span><br/>
+                        <span th:each="skill : ${group.skills}"
+                              class="badge bg-warning text-dark me-1 mt-1"
+                              th:text="${skill.description}"></span>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent d-flex gap-2">
+                    <a th:href="@{/groups/{id}(id=${group.id})}"
+                       class="btn btn-sm btn-outline-primary flex-grow-1">
+                        <i class="bi bi-eye"></i> Detalhes
+                    </a>
+                    <a sec:authorize="hasRole('ADMINISTRATOR')"
+                       th:href="@{/groups/edit/{id}(id=${group.id})}"
+                       class="btn btn-sm btn-outline-secondary">
+                        <i class="bi bi-pencil"></i>
+                    </a>
+                    <form sec:authorize="hasRole('ADMINISTRATOR')"
+                          th:action="@{/groups/delete/{id}(id=${group.id})}"
+                          method="post" class="d-inline"
+                          onsubmit="return confirm('Remover grupo?')">
+                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{fragments :: scripts}"></div>
+</body>
+</html>

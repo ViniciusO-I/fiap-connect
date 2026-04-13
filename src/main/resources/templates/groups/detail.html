@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments :: head('Detalhe do Grupo')}"></head>
+<body class="bg-light">
+
+<nav th:replace="~{fragments :: navbar}"></nav>
+
+<div class="container py-4" style="max-width: 760px;">
+    <div th:replace="~{fragments :: alerts}"></div>
+
+    <div class="mb-3">
+        <a th:href="@{/groups}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left"></i> Voltar para grupos
+        </a>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <!-- Header do card -->
+        <div class="card-header bg-primary text-white py-3">
+            <h4 class="mb-0 fw-bold" th:text="${group.description}">Nome do Grupo</h4>
+        </div>
+
+        <div class="card-body">
+
+            <!-- Informações gerais -->
+            <div class="row mb-4">
+                <div class="col-sm-6">
+                    <p><i class="bi bi-person-fill me-1"></i>
+                        <strong>Dono:</strong>
+                        <span th:text="${group.ownerName}">-</span>
+                    </p>
+                    <p><i class="bi bi-people-fill me-1"></i>
+                        <strong>Membros:</strong>
+                        <span th:text="${group.users.size()} + ' / ' + ${group.maxMembers}"></span>
+                    </p>
+                </div>
+                <div class="col-sm-6">
+                    <p>
+                        <i class="bi bi-door-open me-1"></i>
+                        <strong>Vagas disponíveis:</strong>
+                        <span class="badge fs-6"
+                              th:classappend="${group.availableSeats > 0} ? 'bg-success' : 'bg-danger'"
+                              th:text="${group.availableSeats}"></span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Skills obrigatórias -->
+            <div class="mb-4">
+                <h6 class="text-muted text-uppercase fw-bold mb-2">
+                    <i class="bi bi-lightning-fill text-warning"></i> Skills Obrigatórias
+                </h6>
+                <div th:if="${#sets.isEmpty(group.skills)}" class="text-muted fst-italic">
+                    Nenhuma skill obrigatória definida.
+                </div>
+                <span th:each="skill : ${group.skills}"
+                      class="badge bg-warning text-dark me-1 mb-1 fs-6"
+                      th:text="${skill.description}"></span>
+            </div>
+
+            <!-- Membros -->
+            <div class="mb-4">
+                <h6 class="text-muted text-uppercase fw-bold mb-2">
+                    <i class="bi bi-people-fill text-primary"></i> Membros Atuais
+                </h6>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item px-0" th:each="member : ${group.users}">
+                        <i class="bi bi-person-circle me-2 text-secondary"></i>
+                        <span th:text="${member.name}">Membro</span>
+                        <span th:if="${member.id == group.ownerId}"
+                              class="badge bg-danger ms-2">dono</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- ══ BOTÃO DE ENTRAR NO GRUPO (fluxo principal) ══════════════════ -->
+            <div class="border-top pt-3">
+                <!-- Verifica se o usuário logado JÁ é membro -->
+                <div th:with="isMember=${group.users != null and group.users.?[id == currentUserId].size() > 0}">
+
+                    <div th:if="${isMember}" class="alert alert-success mb-0">
+                        <i class="bi bi-check-circle-fill me-1"></i>
+                        Você já faz parte deste grupo!
+                    </div>
+
+                    <div th:if="${not isMember}">
+                        <p class="text-muted mb-2">
+                            <i class="bi bi-info-circle"></i>
+                            Para entrar, você precisa ter todas as skills obrigatórias no seu perfil.
+                        </p>
+                        <form th:action="@{/groups/{id}/join(id=${group.id})}" method="post">
+                            <button type="submit"
+                                    class="btn btn-success"
+                                    th:disabled="${group.availableSeats <= 0}">
+                                <i class="bi bi-box-arrow-in-right"></i>
+                                <span th:text="${group.availableSeats > 0} ? 'Entrar no grupo' : 'Grupo lotado'">
+                                    Entrar no grupo
+                                </span>
+                            </button>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+            <!-- ══════════════════════════════════════════════════════════════════ -->
+
+        </div>
+
+        <!-- Footer com ações de admin -->
+        <div class="card-footer bg-transparent d-flex gap-2"
+             sec:authorize="hasRole('ADMINISTRATOR')">
+            <a th:href="@{/groups/edit/{id}(id=${group.id})}"
+               class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-pencil"></i> Editar grupo
+            </a>
+            <form th:action="@{/groups/delete/{id}(id=${group.id})}"
+                  method="post"
+                  onsubmit="return confirm('Tem certeza que deseja remover este grupo?')">
+                <button type="submit" class="btn btn-outline-danger btn-sm">
+                    <i class="bi bi-trash"></i> Remover grupo
+                </button>
+            </form>
+        </div>
+
+    </div>
+</div>
+
+<div th:replace="~{fragments :: scripts}"></div>
+</body>
+</html>

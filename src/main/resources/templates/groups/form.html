@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Grupo')}"></head>
+<body class="bg-light">
+
+<nav th:replace="~{fragments :: navbar}"></nav>
+
+<div class="container py-4" style="max-width: 640px;">
+    <div th:replace="~{fragments :: alerts}"></div>
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">
+                <i class="bi bi-people-fill"></i>
+                <span th:text="${editMode} ? 'Editar Grupo' : 'Novo Grupo'">Grupo</span>
+            </h5>
+        </div>
+        <div class="card-body">
+
+            <form th:action="${editMode} ? @{/groups/edit/{id}(id=${group.id})} : @{/groups/new}"
+                  th:object="${group}" method="post">
+
+                <!-- Descrição -->
+                <div class="mb-3">
+                    <label for="description" class="form-label fw-semibold">Descrição do Projeto</label>
+                    <input type="text" id="description" th:field="*{description}"
+                           class="form-control"
+                           th:classappend="${#fields.hasErrors('description')} ? 'is-invalid'"
+                           placeholder="Ex: Projeto Full Stack - Turma B"/>
+                    <div class="invalid-feedback"
+                         th:if="${#fields.hasErrors('description')}"
+                         th:errors="*{description}">Erro</div>
+                </div>
+
+                <!-- Máximo de membros -->
+                <div class="mb-3">
+                    <label for="maxMembers" class="form-label fw-semibold">Máximo de Membros</label>
+                    <input type="number" id="maxMembers" th:field="*{maxMembers}"
+                           class="form-control" min="2" max="20"
+                           th:classappend="${#fields.hasErrors('maxMembers')} ? 'is-invalid'"/>
+                    <div class="invalid-feedback"
+                         th:if="${#fields.hasErrors('maxMembers')}"
+                         th:errors="*{maxMembers}">Erro</div>
+                    <div class="form-text">Mínimo de 2 membros.</div>
+                </div>
+
+                <!-- Skills obrigatórias -->
+                <div class="mb-4">
+                    <label class="form-label fw-semibold">
+                        Skills Obrigatórias
+                        <span class="text-muted fw-normal">(selecione ao menos uma)</span>
+                    </label>
+                    <div class="border rounded p-3 bg-white" style="max-height:220px; overflow-y:auto;">
+                        <div th:each="skill : ${allSkills}" class="form-check">
+                            <input class="form-check-input" type="checkbox"
+                                   name="skillIds"
+                                   th:value="${skill.id}"
+                                   th:id="'skill-' + ${skill.id}"
+                                   th:checked="${group.skills != null and group.skills.?[id == skill.id].size() > 0}"/>
+                            <label class="form-check-label"
+                                   th:for="'skill-' + ${skill.id}"
+                                   th:text="${skill.description}">Skill</label>
+                        </div>
+                        <div th:if="${#lists.isEmpty(allSkills)}" class="text-muted fst-italic">
+                            Nenhuma skill cadastrada.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-lg"></i>
+                        <span th:text="${editMode} ? 'Salvar alterações' : 'Criar grupo'">Salvar</span>
+                    </button>
+                    <a th:href="@{/groups}" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-lg"></i> Cancelar
+                    </a>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{fragments :: scripts}"></div>
+</body>
+</html>

@@ -1,0 +1,31 @@
+/* FIAP Connect - estilos globais */
+
+body {
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.navbar-brand {
+    font-size: 1.3rem;
+    letter-spacing: 0.5px;
+}
+
+/* Cards com hover suave */
+.card {
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1) !important;
+}
+
+/* Badge de vagas */
+.badge.bg-success { background-color: #198754 !important; }
+.badge.bg-danger  { background-color: #dc3545 !important; }
+
+/* Tabelas */
+.table th { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }
+
+/* Scrollbar discreta no checkbox list */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }

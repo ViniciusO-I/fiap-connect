@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments :: head('Skills')}"></head>
+<body class="bg-light">
+
+<nav th:replace="~{fragments :: navbar}"></nav>
+
+<div class="container py-4">
+    <div th:replace="~{fragments :: alerts}"></div>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-lightning-fill text-warning"></i> Skills Cadastradas</h2>
+        <!-- Botão visível apenas para ADMINISTRATOR -->
+        <a sec:authorize="hasRole('ADMINISTRATOR')"
+           th:href="@{/skills/new}" class="btn btn-danger">
+            <i class="bi bi-plus-circle"></i> Nova Skill
+        </a>
+    </div>
+
+    <!-- Lista vazia -->
+    <div th:if="${#lists.isEmpty(skills)}" class="alert alert-info">
+        Nenhuma skill cadastrada ainda.
+    </div>
+
+    <!-- Tabela de skills -->
+    <div th:if="${not #lists.isEmpty(skills)}" class="card shadow-sm">
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th>#</th>
+                        <th>Descrição</th>
+                        <!-- Colunas de ação: só ADMINISTRATOR vê -->
+                        <th sec:authorize="hasRole('ADMINISTRATOR')" class="text-end">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="skill : ${skills}">
+                        <td class="align-middle text-muted" th:text="${skill.id}"></td>
+                        <td class="align-middle fw-semibold" th:text="${skill.description}"></td>
+                        <td sec:authorize="hasRole('ADMINISTRATOR')" class="text-end">
+                            <a th:href="@{/skills/edit/{id}(id=${skill.id})}"
+                               class="btn btn-sm btn-outline-secondary me-1">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <form th:action="@{/skills/delete/{id}(id=${skill.id})}"
+                                  method="post" class="d-inline"
+                                  onsubmit="return confirm('Confirmar remoção?')">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{fragments :: scripts}"></div>
+</body>
+</html>
