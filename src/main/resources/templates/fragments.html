@@ -27,17 +27,23 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto">
                 <li class="nav-item">
-                    <a class="nav-link" th:href="@{/skills}">
+                    <a class="nav-link"
+                       th:href="@{/skills}"
+                       th:classappend="${activeMenu == 'skills'} ? ' active fw-bold'">
                         <i class="bi bi-lightning-fill"></i> Skills
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" th:href="@{/groups}">
+                    <a class="nav-link"
+                       th:href="@{/groups}"
+                       th:classappend="${activeMenu == 'groups'} ? ' active fw-bold'">
                         <i class="bi bi-people-fill"></i> Grupos
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" th:href="@{/users}">
+                    <a class="nav-link"
+                       th:href="@{/users}"
+                       th:classappend="${activeMenu == 'users'} ? ' active fw-bold'">
                         <i class="bi bi-person-lines-fill"></i> Usuários
                     </a>
                 </li>

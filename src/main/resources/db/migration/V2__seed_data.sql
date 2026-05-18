@@ -4,7 +4,7 @@
 -- Usuário ADMINISTRATOR (será associado ao login do GitHub via OAuth2)
 -- A senha está em branco pois o login é feito pelo GitHub
 INSERT INTO user_entity (dt_created, status, name, email, password, profile)
-VALUES (NOW(), 'ACTIVE', 'Admin FIAP', 'admin@github', '', 'ADMINISTRATOR');
+VALUES (NOW(), 'ACTIVE', 'Admin FIAP', 'ViniciusO-I@github', '', 'ADMINISTRATOR');
 
 -- Usuário STUDENT de exemplo
 INSERT INTO user_entity (dt_created, status, name, email, password, profile)

@@ -16,14 +16,12 @@
     </div>
 
     <div class="card shadow-sm border-0">
-        <!-- Header do card -->
         <div class="card-header bg-primary text-white py-3">
             <h4 class="mb-0 fw-bold" th:text="${group.description}">Nome do Grupo</h4>
         </div>
 
         <div class="card-body">
 
-            <!-- Informações gerais -->
             <div class="row mb-4">
                 <div class="col-sm-6">
                     <p><i class="bi bi-person-fill me-1"></i>
@@ -46,7 +44,6 @@
                 </div>
             </div>
 
-            <!-- Skills obrigatórias -->
             <div class="mb-4">
                 <h6 class="text-muted text-uppercase fw-bold mb-2">
                     <i class="bi bi-lightning-fill text-warning"></i> Skills Obrigatórias
@@ -59,7 +56,6 @@
                       th:text="${skill.description}"></span>
             </div>
 
-            <!-- Membros -->
             <div class="mb-4">
                 <h6 class="text-muted text-uppercase fw-bold mb-2">
                     <i class="bi bi-people-fill text-primary"></i> Membros Atuais
@@ -74,10 +70,9 @@
                 </ul>
             </div>
 
-            <!-- ══ BOTÃO DE ENTRAR NO GRUPO (fluxo principal) ══════════════════ -->
             <div class="border-top pt-3">
-                <!-- Verifica se o usuário logado JÁ é membro -->
-                <div th:with="isMember=${group.users != null and group.users.?[id == currentUserId].size() > 0}">
+                <!-- LINHA CORRIGIDA: era group.users.?[id == currentUserId].size() > 0 -->
+                <div th:with="isMember=${group.users != null and #lists.contains(group.users.![id], currentUserId)}">
 
                     <div th:if="${isMember}" class="alert alert-success mb-0">
                         <i class="bi bi-check-circle-fill me-1"></i>
@@ -103,11 +98,9 @@
 
                 </div>
             </div>
-            <!-- ══════════════════════════════════════════════════════════════════ -->
 
         </div>
 
-        <!-- Footer com ações de admin -->
         <div class="card-footer bg-transparent d-flex gap-2"
              sec:authorize="hasRole('ADMINISTRATOR')">
             <a th:href="@{/groups/edit/{id}(id=${group.id})}"

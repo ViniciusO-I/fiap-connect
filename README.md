@@ -1,156 +1,121 @@
 # FIAP Connect
 
-Plataforma web de formação de grupos por habilidades, desenvolvida com Spring Boot 3, autenticação OAuth2 via GitHub e banco de dados H2 em memória.
+Plataforma de formação de grupos por habilidades para estudantes da FIAP.
 
----
+## Sobre o projeto
 
-## Pré-requisitos
+O FIAP Connect permite que estudantes se conectem e formem grupos de projeto com base em suas habilidades técnicas. O sistema utiliza autenticação via GitHub OAuth2 e gerencia grupos, skills e membros com regras de negócio bem definidas.
 
-Antes de rodar o projeto, certifique-se de ter instalado:
+## Tecnologias
 
-| Ferramenta | Versão mínima |
-|------------|--------------|
-| Java (JDK) | 21           |
-| Maven      | 3.9+         |
-| Conta no GitHub | — (para criar o OAuth App) |
+- Java 21
+- Spring Boot 3.4.4
+- Spring Security + OAuth2 (GitHub)
+- Spring Data JPA + Hibernate
+- Flyway (migrações de banco)
+- Thymeleaf + Bootstrap 5
+- H2 (desenvolvimento) / MySQL (produção)
+- Railway (deploy)
 
-Para verificar suas versões:
-```bash
-java -version
-mvn -version
+## Arquitetura
+
+```
+controller/   → recebe requisições HTTP, delega para services
+service/      → regras de negócio
+repository/   → acesso ao banco via Spring Data JPA
+dto/          → objetos de transferência (Java Records)
+exception/    → hierarquia de exceções de domínio
+security/     → integração OAuth2 GitHub
 ```
 
----
+## Como rodar localmente
 
-## 1. Configurar o OAuth App no GitHub
+### Pré-requisitos
 
-O projeto usa login via GitHub. Você precisa criar um OAuth App para obter as credenciais.
+- Java 21
+- Maven 3.9+
+- Conta no GitHub com um OAuth App configurado
 
-1. Acesse [github.com/settings/developers](https://github.com/settings/developers)
-2. Clique em **"New OAuth App"**
-3. Preencha os campos:
-   - **Application name:** `fiap-connect` (ou qualquer nome)
+### Configurar o GitHub OAuth App
+
+1. Acesse `https://github.com/settings/developers`
+2. Clique em **New OAuth App**
+3. Preencha:
    - **Homepage URL:** `http://localhost:8080`
-   - **Authorization callback URL:** `http://localhost:8080/login/oauth2/code/github`
-4. Clique em **"Register application"**
-5. Copie o **Client ID**
-6. Clique em **"Generate a new client secret"** e copie o **Client Secret**
+   - **Callback URL:** `http://localhost:8080/login/oauth2/code/github`
+4. Gere um **Client Secret** e guarde
 
----
+### Configurar variáveis de ambiente
 
-## 2. Configurar as credenciais no projeto
+Defina as variáveis no seu sistema operacional ou IDE antes de rodar:
 
-Abra o arquivo `src/main/resources/application.properties` e substitua os valores de placeholder pelas credenciais geradas no passo anterior:
-
-```properties
-spring.security.oauth2.client.registration.github.client-id=SEU_CLIENT_ID_AQUI
-spring.security.oauth2.client.registration.github.client-secret=SEU_CLIENT_SECRET_AQUI
+```bash
+export GITHUB_CLIENT_ID=seu_client_id_aqui
+export GITHUB_CLIENT_SECRET=seu_client_secret_aqui
 ```
 
----
+No IntelliJ, vá em **Run > Edit Configurations > Environment Variables** e adicione as duas variáveis.
 
-## 3. Rodar o projeto
-
-Na raiz do projeto (onde está o `pom.xml`), execute:
+### Rodar a aplicação
 
 ```bash
 mvn spring-boot:run
 ```
 
-Aguarde a mensagem de inicialização:
-```
-Started FiapConnectApplication in X seconds
-```
+Acesse em: `http://localhost:8080`
 
-Acesse no navegador: [http://localhost:8080](http://localhost:8080)
+O banco H2 é criado em memória automaticamente via Flyway. O console H2 está disponível em `http://localhost:8080/h2-console`.
 
----
+### Usuário administrador padrão
 
-## 4. Primeiro acesso e configuração do perfil de Administrador
-
-O banco de dados é criado em memória a cada execução e populado automaticamente com dados de seed (Flyway). Para ter acesso como **ADMINISTRATOR** (que permite criar/editar/deletar skills), siga os passos:
-
-1. Faça login com sua conta GitHub em [http://localhost:8080](http://localhost:8080)
-2. Acesse o console H2 em [http://localhost:8080/h2-console](http://localhost:8080/h2-console)
-   - **JDBC URL:** `jdbc:h2:mem:fiapconnectdb`
-   - **User Name:** `sa`
-   - **Password:** *(deixe em branco)*
-3. Execute a query abaixo substituindo pelo seu e-mail do GitHub:
+O seed de dados cria automaticamente um usuário administrador associado ao login do GitHub `ViniciusO-I`. Para usar outro login, altere o email em `V2__seed_data.sql`:
 
 ```sql
--- Descubra seu e-mail cadastrado automaticamente pelo login:
-SELECT * FROM USER_ENTITY;
-
--- Depois atualize o profile para ADMINISTRATOR:
-UPDATE USER_ENTITY SET PROFILE = 'ADMINISTRATOR' WHERE EMAIL = 'seu-login-github@github';
+INSERT INTO user_entity (..., email, ...) VALUES (..., 'seu-login@github', ...);
 ```
 
-> **Como funciona o e-mail:** o sistema grava o usuário com e-mail no formato `{login-do-github}@github`. Por exemplo, se seu login no GitHub é `joaosilva`, seu e-mail no sistema será `joaosilva@github`.
+## Deploy (Railway)
 
----
+### Variáveis de ambiente necessárias no Railway
+
+| Variável | Descrição |
+|---|---|
+| `DATABASE_URL` | URL JDBC do MySQL fornecida pelo Railway |
+| `DATABASE_USERNAME` | Usuário do banco MySQL |
+| `DATABASE_PASSWORD` | Senha do banco MySQL |
+| `GITHUB_CLIENT_ID` | Client ID do GitHub OAuth App |
+| `GITHUB_CLIENT_SECRET` | Client Secret do GitHub OAuth App |
+| `SPRING_PROFILES_ACTIVE` | Deve ser `prod` |
+
+### Atualizar o GitHub OAuth App para produção
+
+Após obter a URL do Railway, atualize o OAuth App em `https://github.com/settings/developers`:
+
+- **Homepage URL:** `https://sua-url.railway.app`
+- **Callback URL:** `https://sua-url.railway.app/login/oauth2/code/github`
 
 ## Funcionalidades
 
-| Perfil        | Permissões                                                                 |
-|---------------|---------------------------------------------------------------------------|
-| `STUDENT`     | Ver skills, ver grupos, entrar em grupos, gerenciar próprio perfil        |
-| `ADMINISTRATOR` | Tudo do STUDENT + criar, editar e deletar skills                       |
+- Login e logout via GitHub OAuth2
+- Cadastro automático de novos usuários ao fazer login
+- Perfil do usuário com gerenciamento de skills
+- Listagem de grupos de projeto
+- Criação e edição de grupos com skills obrigatórias
+- Entrada em grupos com validação de vagas e skills
+- Gerenciamento de skills (somente administrador)
+- Controle de acesso por perfil (ADMINISTRATOR / STUDENT)
 
-### Rotas disponíveis
+## Regras de negócio — entrar em um grupo
 
-| Método | Rota                      | Descrição                            |
-|--------|---------------------------|--------------------------------------|
-| GET    | `/`                       | Página inicial                        |
-| GET    | `/users`                  | Lista todos os usuários              |
-| GET    | `/users/profile`          | Perfil do usuário logado             |
-| POST   | `/users/profile/skills`   | Adicionar skills ao próprio perfil   |
-| GET    | `/groups`                 | Lista todos os grupos                |
-| GET    | `/groups/{id}`            | Detalhe de um grupo                  |
-| GET    | `/groups/new`             | Formulário para criar grupo          |
-| POST   | `/groups/new`             | Salvar novo grupo                    |
-| GET    | `/groups/edit/{id}`       | Formulário para editar grupo         |
-| POST   | `/groups/edit/{id}`       | Salvar edição de grupo               |
-| POST   | `/groups/delete/{id}`     | Deletar grupo                        |
-| POST   | `/groups/{id}/join`       | Entrar em um grupo                   |
-| GET    | `/skills`                 | Lista todas as skills                |
-| GET    | `/skills/new`             | Formulário para criar skill *(ADMIN)*|
-| POST   | `/skills/new`             | Salvar nova skill *(ADMIN)*          |
-| GET    | `/skills/edit/{id}`       | Formulário para editar skill *(ADMIN)*|
-| POST   | `/skills/edit/{id}`       | Salvar edição de skill *(ADMIN)*     |
-| POST   | `/skills/delete/{id}`     | Deletar skill *(ADMIN)*              |
-| GET    | `/h2-console`             | Console do banco H2 (dev)            |
+1. O usuário não pode já ser membro do grupo
+2. O grupo deve ter vagas disponíveis
+3. O usuário deve possuir todas as skills obrigatórias do grupo
 
----
+## Estrutura de banco
 
-## Dados de seed (populados automaticamente)
-
-O Flyway executa automaticamente as migrations ao iniciar. Os dados iniciais incluem:
-
-**Usuários:**
-- `Admin FIAP` — perfil `ADMINISTRATOR` — email `admin@github`
-- `Estudante Demo` — perfil `STUDENT` — email `estudante@github`
-
-**Skills pré-cadastradas:** Java, Spring Boot, React, SQL, DevOps, UX/UI Design, Python, Docker
-
-**Grupo de exemplo:** "Projeto Full Stack - Turma A" (máx. 4 membros, requer Java + SQL)
-
----
-
-## Stack tecnológica
-
-- **Java 21** + **Spring Boot 3.4.4**
-- **Spring Security** + **OAuth2** (GitHub)
-- **Spring Data JPA** + **Hibernate**
-- **Flyway** (migrations)
-- **H2** (banco em memória)
-- **Thymeleaf** (templates)
-- **Lombok** + **MapStruct**
-- **Maven**
-
----
-
-## Observações importantes
-
-- O banco H2 é **em memória**: todos os dados são perdidos ao reiniciar a aplicação. Isso é esperado para ambiente de desenvolvimento.
-- O login é **exclusivamente via GitHub**. Não há formulário de usuário/senha.
-- Ao fazer login pela primeira vez com uma conta GitHub nova, o sistema cria automaticamente um usuário com perfil `STUDENT`.
+- `user_entity` — usuários
+- `skill_entity` — skills cadastradas
+- `group_entity` — grupos de projeto
+- `user_skill` — skills de cada usuário
+- `group_member` — membros de cada grupo
+- `group_skill_requirement` — skills obrigatórias de cada grupo

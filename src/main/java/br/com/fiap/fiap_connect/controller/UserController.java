@@ -36,13 +36,15 @@ public class UserController extends CommonController {
     // ── Perfil do usuário logado ────────────────────────────────────────────────
     @GetMapping("/profile")
     public String profile(OAuth2AuthenticationToken authentication, Model model) {
-        String login = authentication.getPrincipal().getAttribute("login");
-        String email = login + "@github";
-        var user = userRepository.findByEmail(email);
-        user.ifPresent(u -> {
-            model.addAttribute("profileUser", userService.findById(u.getId()));
+        try {
+
+            Integer userId = resolveUserId(authentication);
+
+            model.addAttribute("profileUser", userService.findById(userId));
             model.addAttribute("allSkills", skillService.list());
-        });
+        } catch (Exception e) {
+            model.addAttribute("errorMessage", e.getMessage());
+        }
         return "users/profile";
     }
 
@@ -55,17 +57,10 @@ public class UserController extends CommonController {
             redirectAttributes.addFlashAttribute("errorMessage", "Selecione pelo menos uma skill.");
             return "redirect:/users/profile";
         }
-
-        String login = authentication.getPrincipal().getAttribute("login");
-        String email = login + "@github";
-        Integer userId = userRepository.findByEmail(email).map(u -> u.getId()).orElse(null);
-
-        if (userId == null) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Usuário não encontrado.");
-            return "redirect:/users/profile";
-        }
-
         try {
+
+            Integer userId = resolveUserId(authentication);
+
             userService.addSkills(userId, skillIds);
             redirectAttributes.addFlashAttribute("successMessage", "Skills adicionadas com sucesso!");
         } catch (Exception e) {

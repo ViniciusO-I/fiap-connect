@@ -20,7 +20,6 @@
             <form th:action="${editMode} ? @{/groups/edit/{id}(id=${group.id})} : @{/groups/new}"
                   th:object="${group}" method="post">
 
-                <!-- Descrição -->
                 <div class="mb-3">
                     <label for="description" class="form-label fw-semibold">Descrição do Projeto</label>
                     <input type="text" id="description" th:field="*{description}"
@@ -32,7 +31,6 @@
                          th:errors="*{description}">Erro</div>
                 </div>
 
-                <!-- Máximo de membros -->
                 <div class="mb-3">
                     <label for="maxMembers" class="form-label fw-semibold">Máximo de Membros</label>
                     <input type="number" id="maxMembers" th:field="*{maxMembers}"
@@ -44,7 +42,6 @@
                     <div class="form-text">Mínimo de 2 membros.</div>
                 </div>
 
-                <!-- Skills obrigatórias -->
                 <div class="mb-4">
                     <label class="form-label fw-semibold">
                         Skills Obrigatórias
@@ -56,7 +53,7 @@
                                    name="skillIds"
                                    th:value="${skill.id}"
                                    th:id="'skill-' + ${skill.id}"
-                                   th:checked="${group.skills != null and group.skills.?[id == skill.id].size() > 0}"/>
+                                   th:checked="${group.skills != null and #lists.contains(group.skills.![id], skill.id)}"/>
                             <label class="form-check-label"
                                    th:for="'skill-' + ${skill.id}"
                                    th:text="${skill.description}">Skill</label>
