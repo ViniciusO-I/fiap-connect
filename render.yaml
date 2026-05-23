@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: fiap-connect
+    runtime: java
+    buildCommand: mvn clean package -DskipTests -B
+    startCommand: java -jar target/*.jar
+    envVars:
+      - key: GITHUB_CLIENT_ID
+        sync: false
+      - key: GITHUB_CLIENT_SECRET
+        sync: false
