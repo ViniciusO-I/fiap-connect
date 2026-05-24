@@ -120,3 +120,4 @@ Após obter a URL do Railway, atualize o OAuth App em `https://github.com/settin
 - `group_member` — membros de cada grupo
 - `group_skill_requirement` — skills obrigatórias de cada grupo
 # CI/CD test Sun May 24 13:17:04 -03 2026
+build test 1
